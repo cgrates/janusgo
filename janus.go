@@ -238,7 +238,7 @@ func (gateway *Gateway) recv() {
 			}
 			gateway.Unlock()
 			if transaction == nil {
-				// Error()
+				continue
 			}
 
 			// Pass msg
@@ -374,7 +374,7 @@ func (session *Session) KeepAlive(ctx context.Context, msg BaseMsg) (*AckMsg, er
 // Destroy sends a destroy request to the Gateway to tear down this session.
 // On success, the Session will be removed from the Gateway.Sessions map, an
 // AckMsg will be returned and error will be nil.
-func (session *Session) DestroySession(ctx context.Context, msg BaseMsg) (*AckMsg, error) {
+func (session *Session) DestroySession(ctx context.Context, msg BaseMsg) (*SuccessMsg, error) {
 	ch := make(chan any)
 	session.send(msg, msg.ID, ch)
 
@@ -382,7 +382,7 @@ func (session *Session) DestroySession(ctx context.Context, msg BaseMsg) (*AckMs
 	case response := <-ch:
 
 		switch response := response.(type) {
-		case *AckMsg:
+		case *SuccessMsg:
 
 			session.gateway.Lock()
 			delete(session.gateway.Sessions, session.ID)
